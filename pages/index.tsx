@@ -1,9 +1,6 @@
 import React from "react";
 import Head from "next/head";
 
-import AddComment from "@components/AddComment";
-import NavBar from "@components/NavBar";
-
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import {
   Tab,
@@ -17,6 +14,10 @@ import {
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
+
+import AddComment from "@components/AddComment";
+import NavBar from "@components/NavBar";
+import { loadComments, deleteComment, addComment } from "@src/commentsApi";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -34,30 +35,23 @@ export default function Home() {
   const [jiras, jirasSet] = React.useState([]);
 
   React.useEffect(() => {
-    fetch("http://localhost:4001/comments")
-      .then((res) => res.json())
-      .then(jirasSet);
+    const loadData = async () => {
+      const json = await loadComments();
+      jirasSet(json);
+    };
+
+    loadData();
   }, []);
 
   const handleDelete = async (id) => {
-    const result = await fetch(`http://localhost:4001/comments/${id}`, {
-      method: "Delete",
-    });
+    const result = await deleteComment(id);
     if (result.status === 200) jirasSet(jiras.filter((jira) => jira.id !== id));
   };
 
   const handleAdd = async (values) => {
-    const result = await fetch("http://localhost:4001/comments", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-    const json = await result.json();
-    if (result.status === 201) jirasSet([...jiras, { ...values, ...json }]);
-    console.log(values, json);
+    const result = await addComment(values);
+    if (result.status === 201) jirasSet([...jiras, result.comment]);
+    return result.status;
   };
 
   return (

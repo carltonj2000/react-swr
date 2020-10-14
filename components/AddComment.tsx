@@ -8,8 +8,7 @@ function AddComment({ handleAdd }) {
       initialValues={{ comment: "" }}
       onSubmit={async (values, formikHelpers) => {
         const result = await handleAdd(values);
-        console.log("add", result);
-        formikHelpers.resetForm();
+        if (result === 201) formikHelpers.resetForm();
       }}
     >
       <Form>

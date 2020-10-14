@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -39,8 +40,12 @@ export default function ButtonAppBar() {
           <Typography variant="h6" className={classes.title}>
             My Jira Tickets
           </Typography>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">Add Comment</Button>
+          <Button color="inherit">
+            <Link href="/">Home</Link>
+          </Button>
+          <Button color="inherit">
+            <Link href="add-comment">Add Comment</Link>
+          </Button>
         </Toolbar>
       </AppBar>
     </div>
