@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Home() {
-  // const [jiras, jirasSet] = React.useState([]);
-
-  const { data: jiras } = useSWR("http://localhost:4001/comments");
+export default function Home({ commentsFromServer }: any) {
+  const { data: jiras } = useSWR("http://localhost:4001/comments", {
+    initialData: commentsFromServer,
+  });
   const handleDelete = async (id) => {
     mutate(
       "http://localhost:4001/comments",
@@ -93,3 +93,9 @@ function JiraList({ jiras, handleDelete }) {
     </TableContainer>
   );
 }
+
+Home.getInitialProps = async (ctx) => {
+  const res = await fetch("http://localhost:4001/comments");
+  const json = await res.json();
+  return { commentsFromServer: json };
+};
