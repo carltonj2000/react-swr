@@ -1,9 +1,9 @@
 import React from "react";
 import Head from "next/head";
+import useSWR from "swr";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import {
-  Tab,
   Table,
   TableBody,
   TableCell,
@@ -32,25 +32,17 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function Home() {
-  const [jiras, jirasSet] = React.useState([]);
+  // const [jiras, jirasSet] = React.useState([]);
 
-  React.useEffect(() => {
-    const loadData = async () => {
-      const json = await loadComments();
-      jirasSet(json);
-    };
-
-    loadData();
-  }, []);
-
+  const { data: jiras } = useSWR("http://localhost:4001/comments");
   const handleDelete = async (id) => {
     const result = await deleteComment(id);
-    if (result.status === 200) jirasSet(jiras.filter((jira) => jira.id !== id));
+    // if (result.status === 200) jirasSet(jiras.filter((jira) => jira.id !== id));
   };
 
   const handleAdd = async (values) => {
     const result = await addComment(values);
-    if (result.status === 201) jirasSet([...jiras, result.comment]);
+    //if (result.status === 201) jirasSet([...jiras, result.comment]);
     return result.status;
   };
 
@@ -80,7 +72,7 @@ function JiraList({ jiras, handleDelete }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {jiras.map((jira) => (
+          {jiras?.map((jira) => (
             <TableRow key={jira.id}>
               <TableCell>{jira.id}</TableCell>
               <TableCell>{jira.comment || "No comment"}</TableCell>
