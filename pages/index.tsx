@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import useSWR, { trigger } from "swr";
+import useSWR, { mutate } from "swr";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import {
@@ -37,12 +37,15 @@ export default function Home() {
   const { data: jiras } = useSWR("http://localhost:4001/comments");
   const handleDelete = async (id) => {
     const result = await deleteComment(id);
-    trigger("http://localhost:4001/comments");
+    mutate(
+      "http://localhost:4001/comments",
+      jiras.filter((jira) => jira.id !== id)
+    );
   };
 
   const handleAdd = async (values) => {
     const result = await addComment(values);
-    trigger("http://localhost:4001/comments");
+    mutate("http://localhost:4001/comments", [...jiras, result.comment]);
     return result.status;
   };
 
