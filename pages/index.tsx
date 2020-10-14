@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import useSWR from "swr";
+import useSWR, { trigger } from "swr";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import {
@@ -17,7 +17,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 
 import AddComment from "@components/AddComment";
 import NavBar from "@components/NavBar";
-import { loadComments, deleteComment, addComment } from "@src/commentsApi";
+import { deleteComment, addComment } from "@src/commentsApi";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,12 +37,12 @@ export default function Home() {
   const { data: jiras } = useSWR("http://localhost:4001/comments");
   const handleDelete = async (id) => {
     const result = await deleteComment(id);
-    // if (result.status === 200) jirasSet(jiras.filter((jira) => jira.id !== id));
+    trigger("http://localhost:4001/comments");
   };
 
   const handleAdd = async (values) => {
     const result = await addComment(values);
-    //if (result.status === 201) jirasSet([...jiras, result.comment]);
+    trigger("http://localhost:4001/comments");
     return result.status;
   };
 
