@@ -7,9 +7,10 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import useSWR from "swr";
+import useSWR, { mutate, trigger } from "swr";
+import { addComment } from "@src/commentsApi";
 
-function AddComment({ handleAdd }) {
+function AddComment() {
   const { data } = useSWR("http://localhost:4001/comments");
   return (
     <div>
@@ -17,8 +18,10 @@ function AddComment({ handleAdd }) {
       <Formik
         initialValues={{ comment: "" }}
         onSubmit={async (values, formikHelpers) => {
-          const result = await handleAdd(values);
-          if (result === 201) formikHelpers.resetForm();
+          mutate("http://localhost:4001/comments", [...data, values], false);
+          const result = await addComment(values);
+          trigger("http://localhost:4001/comments");
+          if (result.status === 201) formikHelpers.resetForm();
         }}
       >
         <Form>

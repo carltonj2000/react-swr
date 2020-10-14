@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import useSWR, { mutate } from "swr";
+import useSWR, { mutate, trigger } from "swr";
 
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import {
@@ -17,7 +17,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 
 import AddComment from "@components/AddComment";
 import NavBar from "@components/NavBar";
-import { deleteComment, addComment } from "@src/commentsApi";
+import { deleteComment } from "@src/commentsApi";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,17 +36,13 @@ export default function Home() {
 
   const { data: jiras } = useSWR("http://localhost:4001/comments");
   const handleDelete = async (id) => {
-    const result = await deleteComment(id);
     mutate(
       "http://localhost:4001/comments",
-      jiras.filter((jira) => jira.id !== id)
+      jiras.filter((jira) => jira.id !== id),
+      false
     );
-  };
-
-  const handleAdd = async (values) => {
-    const result = await addComment(values);
-    mutate("http://localhost:4001/comments", [...jiras, result.comment]);
-    return result.status;
+    await deleteComment(id);
+    trigger("http://localhost:4001/comments");
   };
 
   return (
@@ -55,7 +51,7 @@ export default function Home() {
         <title>SWR</title>
       </Head>
       <NavBar />
-      <AddComment {...{ handleAdd }} />
+      <AddComment />
       <JiraList {...{ jiras }} {...{ handleDelete }} />
     </>
   );
@@ -76,7 +72,7 @@ function JiraList({ jiras, handleDelete }) {
         </TableHead>
         <TableBody>
           {jiras?.map((jira) => (
-            <TableRow key={jira.id}>
+            <TableRow key={jira.id || Math.random()}>
               <TableCell>{jira.id}</TableCell>
               <TableCell>{jira.comment || "No comment"}</TableCell>
               <TableCell align="right">
